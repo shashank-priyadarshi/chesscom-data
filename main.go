@@ -3,28 +3,39 @@ package main
 import (
 	"ccdata/ccdata"
 	"ccdata/mongo"
+	"fmt"
 	"os"
 
 	logger "github.com/rs/zerolog/log"
 )
 
-// main is the entry point of the program
 func main() {
-	// Retrieve game data
+	// Run the main logic of the application
+	if err := runApp(); err != nil {
+		// Log any errors encountered during runtime
+		logger.Info().Err(err).Msg("Application error")
+		os.Exit(1)
+	}
+
+	// Log successful execution of the plugin
+	logger.Info().Msg("Plugin executed successfully")
+}
+
+// runApp retrieves game data from ccdata package and pushes it to MongoDB database.
+//
+// Returns an error if there's an issue retrieving or pushing data.
+func runApp() error {
 	gameData, err := ccdata.GetData()
 	if err != nil {
-		// Log error and exit program
-		logger.Info().Err(err).Msg("error while getting data")
-		os.Exit(1)
+		return fmt.Errorf("error retrieving game data: %v", err)
 	}
 
-	// Push game data to MongoDB
 	err = pushDataToDB(gameData)
 	if err != nil {
-		os.Exit(1)
+		return fmt.Errorf("error pushing game data to MongoDB: %v", err)
 	}
 
-	logger.Info().Msg("Plugin executed successfully")
+	return nil
 }
 
 // pushDataToDB writes AssortedGamePGN data to a MongoDB collection in batches of 5000 games.
