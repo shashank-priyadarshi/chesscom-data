@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"os"
-	"time"
 
 	// "github.com/docker/docker/daemon/logger"
 	logger "github.com/rs/zerolog/log"
@@ -35,28 +34,21 @@ func setMongoConnection() {
 		logger.Info().Err(err).Msg("error while pinging mongo: ")
 	}
 
-	// Start a goroutine to close the MongoDB client when the program finishes or after a timeout
+	// Start a goroutine to close the MongoDB connection when the program finishes
 	go func() {
-		// Wait for the task to finish or for a timeout
-		select {
-		case <-done:
-			// Task finished, close the MongoDB connection
-			err := client.Disconnect(context.TODO())
-			if err != nil {
-				logger.Info().Err(err).Msg("Error while closing connection to mongo due to timeout: ")
-			}
-		case <-time.After(20 * time.Second):
-			// Timeout, close the MongoDB connection
-			err := client.Disconnect(context.TODO())
-			if err != nil {
-				logger.Info().Err(err).Msg("Error while closing connection to mongo due to timeout: ")
-			}
+		// Wait for the task to finish
+		<-done
+
+		// Task finished, close the MongoDB connection
+		err := client.Disconnect(context.TODO())
+		if err != nil {
+			logger.Info().Err(err).Msg("Error while closing connection to mongo: ")
 		}
 	}()
 
 	// Set the global "db" variable to the specified database
 	// NOTE: This should be done after the connection is established and checked for errors
-	db = client.Database(os.Getenv("GAMES"))
+	db = client.Database(os.Getenv("GAME_DB"))
 }
 
 // WriteDataToCollection writes data to a MongoDB collection.

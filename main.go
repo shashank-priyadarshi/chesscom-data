@@ -34,7 +34,7 @@ func main() {
 		}
 
 		// Write the batch of games to the "games" collection
-		err = mongo.WriteDataToCollection(os.Getenv("CHESSCOM"), struct{ Games []ccdata.AssortedGamePGN }{Games: gameData[i:index]})
+		err = mongo.WriteDataToCollection(os.Getenv("GAME_COLLECTION"), struct{ Games []ccdata.AssortedGamePGN }{Games: gameData[i:index]})
 		if err != nil {
 			// Log error and exit program
 			logger.Info().Err(err).Msg("error while writing data to collection")
