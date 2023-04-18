@@ -11,7 +11,7 @@ import (
 
 // main is the entry point of the program
 func main() {
-	// GetData retrieves game data
+	// Retrieve game data
 	gameData, err := ccdata.GetData()
 	if err != nil {
 		// Log error and exit program
